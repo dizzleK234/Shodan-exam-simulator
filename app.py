@@ -105,27 +105,37 @@ categories = {
     "KANSETSU-WAZA": ["Ude-garami", "Ude-hishigi-juji-gatame", "Ude-hishigi-ude-gatame", "Ude-hishigi-hiza-gatame", "Ude-hishigi-waki-gatame", "Ude-hishigi-hara-gatame"]
 }
 
-@app.route('/flashcards', methods=['GET', 'POST'])
+@app.route('/flashcards', methods=['GET'])
 def flashcards():
-    if request.method == 'POST':
-        selected_categories = request.form.getlist('categories')
-        selected_techniques = []
-        for category in selected_categories:
-            selected_techniques.extend(categories.get(category, []))
-        random.shuffle(selected_techniques)
+    return render_template('flashcards_select.html', categories=categories.keys())
+
+@app.route('/flashcards/start', methods=['POST'])
+def flashcards_start():
+    selected_categories = request.form.getlist('categories')
+
+    selected_techniques = []
+    for category in selected_categories:
+        selected_techniques.extend(categories.get(category, []))
+    
+    random.shuffle(selected_techniques)
+
+    if selected_techniques:
         current = selected_techniques.pop(0)
         link = tachi_links.get(current) or ne_links.get(current) or "#"
         return render_template('flashcards_play.html',
                                current=current,
                                link=link,
                                techniques=selected_techniques)
-    return render_template('flashcards_select.html', categories=categories.keys())
+    else:
+        return render_template('flashcards_play.html', techniques=[])
+
 
 @app.route('/flashcards/play', methods=['POST'])
 def flashcards_play():
     techniques = request.form.getlist('techniques')
+
     if techniques:
-        current = techniques.pop(0)
+        current = techniques.pop(0)  # Get next technique
         link = tachi_links.get(current) or ne_links.get(current) or "#"
         return render_template('flashcards_play.html',
                                current=current,
@@ -133,6 +143,7 @@ def flashcards_play():
                                techniques=techniques)
     else:
         return render_template('flashcards_play.html', techniques=[])
+
 
 
 @app.route('/')
@@ -172,14 +183,14 @@ def quiz():
     options = random.sample(all_moves, 4) + [correct_move]
     random.shuffle(options)
 
-    # find which link it belongs to
-    if correct_move in tachi_links:
-        video_link = tachi_links[correct_move]
-    else:
-        video_link = ne_links[correct_move]
+    video_link = tachi_links.get(correct_move) or ne_links.get(correct_move)
 
-    # get YouTube video ID
-    video_id = video_link.split('v=')[-1]
+    # Extract clean video ID
+    if "v=" in video_link:
+        video_id = video_link.split("v=")[-1]
+        video_id = video_id.split("&")[0]  # remove extra junk
+    else:
+        video_id = video_link.split("/")[-1]
 
     return render_template('quiz.html', video_id=video_id, correct_move=correct_move, options=options)
 

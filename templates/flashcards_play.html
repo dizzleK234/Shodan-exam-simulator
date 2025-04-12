@@ -40,19 +40,30 @@
 <body>
   <div class="container">
     <h1>Flashcard</h1>
-    {% if techniques %}
+
+    {% if current %}
       <h2>{{ current }}</h2>
       <a href="{{ link }}" target="_blank">Watch Technique</a>
-      <form action="/flashcards/play" method="post">
-        {% for t in techniques %}
-          <input type="hidden" name="techniques" value="{{ t }}">
-        {% endfor %}
-        <button type="submit">Next</button>
-      </form>
+
+      {% if techniques %}
+        <form action="/flashcards/play" method="post">
+          {% for t in techniques %}
+            <input type="hidden" name="techniques" value="{{ t }}">
+          {% endfor %}
+          <button type="submit">Next</button>
+        </form>
+      {% else %}
+        <h3>All flashcards completed after this one!</h3>
+        <form action="/flashcards/play" method="post">
+          <button type="submit">Finish</button>
+        </form>
+      {% endif %}
+      
     {% else %}
       <h2>All flashcards completed!</h2>
       <a href="/flashcards" class="button">Start Over</a>
     {% endif %}
+
   </div>
 </body>
 </html>
