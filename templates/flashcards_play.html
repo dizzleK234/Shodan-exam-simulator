@@ -41,10 +41,10 @@
   <div class="container">
     <h1>Flashcard</h1>
     {% if techniques %}
-      <h2>{{ techniques[0] }}</h2>
-      <a href="{{ tachi_links.get(techniques[0], ne_links.get(techniques[0], '#')) }}" target="_blank">Watch Technique</a>
+      <h2>{{ current }}</h2>
+      <a href="{{ link }}" target="_blank">Watch Technique</a>
       <form action="/flashcards/play" method="post">
-        {% for t in techniques[1:] %}
+        {% for t in techniques %}
           <input type="hidden" name="techniques" value="{{ t }}">
         {% endfor %}
         <button type="submit">Next</button>

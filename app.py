@@ -93,6 +93,47 @@ ne_links = {
     "Ude-hishigi-hara-gatame": "https://youtu.be/ZzEycg8R_9M",
 }
 
+# Category mapping based on Shodan Exam table
+categories = {
+    "TE-WAZA": ["Seoi-nage", "Ippon-seoi-nage", "Tai-otoshi", "Kata-guruma", "Sukui-nage", "Uki-otoshi", "Sumi-otoshi"],
+    "KOSHI-WAZA": ["Uki-goshi", "O-goshi", "Koshi-guruma", "Tsurikomi-goshi", "Harai-goshi", "Tsuri-goshi", "Hane-goshi", "Utsuri-goshi", "Ushiro-goshi"],
+    "ASHI-WAZA": ["De-ashi-harai", "Hiza-guruma", "Sasae-tsurikomi-ashi", "O-soto-gari", "O-uchi-gari", "Ko-soto-gari", "Ko-uchi-gari", "Okuri-ashi-harai", "Uchi-mata", "Ko-soto-gake", "Ashi-guruma", "Harai-tsurikomi-ashi", "O-guruma", "O-soto-guruma"],
+    "MASUTEMI-WAZA": ["Tomoe-nage", "Sumi-gaeshi", "Ura-nage"],
+    "YOKO-SUTEMI-WAZA": ["Yoko-otoshi", "Tani-otoshi", "Hane-makikomi", "Soto-makikomi", "Uki-waza", "Yoko-wakare", "Yoko-guruma", "Yoko-gake"],
+    "OSAEKOMI-WAZA": ["Kesa-gatame", "Kata-gatame", "Kuzure-kami-shiho-gatame", "Yoko-shiho-gatame", "Tate-shiho-gatame", "Kuzure-kesa-gatame", "Kami-shiho-gatame"],
+    "SHIME-WAZA": ["Nami-juji-jime", "Gyaku-juji-jime", "Kata-juji-jime", "Hadaka-jime", "Okuri-eri-jime", "Kata-ha-jime"],
+    "KANSETSU-WAZA": ["Ude-garami", "Ude-hishigi-juji-gatame", "Ude-hishigi-ude-gatame", "Ude-hishigi-hiza-gatame", "Ude-hishigi-waki-gatame", "Ude-hishigi-hara-gatame"]
+}
+
+@app.route('/flashcards', methods=['GET', 'POST'])
+def flashcards():
+    if request.method == 'POST':
+        selected_categories = request.form.getlist('categories')
+        selected_techniques = []
+        for category in selected_categories:
+            selected_techniques.extend(categories.get(category, []))
+        random.shuffle(selected_techniques)
+        current = selected_techniques.pop(0)
+        link = tachi_links.get(current) or ne_links.get(current) or "#"
+        return render_template('flashcards_play.html',
+                               current=current,
+                               link=link,
+                               techniques=selected_techniques)
+    return render_template('flashcards_select.html', categories=categories.keys())
+
+@app.route('/flashcards/play', methods=['POST'])
+def flashcards_play():
+    techniques = request.form.getlist('techniques')
+    if techniques:
+        current = techniques.pop(0)
+        link = tachi_links.get(current) or ne_links.get(current) or "#"
+        return render_template('flashcards_play.html',
+                               current=current,
+                               link=link,
+                               techniques=techniques)
+    else:
+        return render_template('flashcards_play.html', techniques=[])
+
 
 @app.route('/')
 def welcome():
@@ -121,30 +162,7 @@ def results():
                            tachi=tachi_with_links,
                            ne=ne_with_links)
 
-@app.route('/flashcards', methods=['GET', 'POST'])
-def flashcards():
-    if request.method == 'POST':
-        selected = request.form.getlist('techniques')
-        return render_template('flashcards_play.html', techniques=selected)
-    return render_template('flashcards_select.html', tachi=tachi_waza, ne=ne_waza)
 
-
-@app.route('/flashcards/play', methods=['POST'])
-def flashcards_play():
-    techniques = request.form.getlist('techniques')
-    if techniques:
-        current = techniques[0]
-        remaining = techniques[1:]
-        
-        # Find the correct link
-        link = tachi_links.get(current) or ne_links.get(current)
-        
-        return render_template('flashcards_play.html',
-                               current=current,
-                               link=link,
-                               techniques=remaining)
-    else:
-        return render_template('flashcards_play.html', techniques=[])
 
 
 @app.route('/quiz')
@@ -167,4 +185,4 @@ def quiz():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=81)
+    app.run(debug=True, port=5001)
