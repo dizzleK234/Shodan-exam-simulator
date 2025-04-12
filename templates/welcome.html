@@ -60,8 +60,17 @@
           <img src="{{ url_for('static', filename='logojudo.jpg') }}" alt="Dojo Logo" style="width: 150px; margin-bottom: 20px;">
         <h1>Welcome Sensei Dave!</h1>
         <form action="/choose" method="post">
-          <button type="submit">Start</button>
-        </form>
+            <button type="submit">Start Test</button>
+          </form>
+          
+          <form action="/flashcards" method="get">
+            <button type="submit">Flashcards</button>
+          </form>
+          
+          <form action="/quiz" method="get">
+            <button type="submit">Quiz</button>
+          </form>
+          
       </div>
     </body>
 </html>

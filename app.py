@@ -121,6 +121,50 @@ def results():
                            tachi=tachi_with_links,
                            ne=ne_with_links)
 
+@app.route('/flashcards', methods=['GET', 'POST'])
+def flashcards():
+    if request.method == 'POST':
+        selected = request.form.getlist('techniques')
+        return render_template('flashcards_play.html', techniques=selected)
+    return render_template('flashcards_select.html', tachi=tachi_waza, ne=ne_waza)
+
+
+@app.route('/flashcards/play', methods=['POST'])
+def flashcards_play():
+    techniques = request.form.getlist('techniques')
+    if techniques:
+        current = techniques[0]
+        remaining = techniques[1:]
+        
+        # Find the correct link
+        link = tachi_links.get(current) or ne_links.get(current)
+        
+        return render_template('flashcards_play.html',
+                               current=current,
+                               link=link,
+                               techniques=remaining)
+    else:
+        return render_template('flashcards_play.html', techniques=[])
+
+
+@app.route('/quiz')
+def quiz():
+    all_moves = list(tachi_links.keys()) + list(ne_links.keys())
+    correct_move = random.choice(all_moves)
+    options = random.sample(all_moves, 4) + [correct_move]
+    random.shuffle(options)
+
+    # find which link it belongs to
+    if correct_move in tachi_links:
+        video_link = tachi_links[correct_move]
+    else:
+        video_link = ne_links[correct_move]
+
+    # get YouTube video ID
+    video_id = video_link.split('v=')[-1]
+
+    return render_template('quiz.html', video_id=video_id, correct_move=correct_move, options=options)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=81)
