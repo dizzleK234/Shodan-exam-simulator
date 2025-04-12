@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session
 import random
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Needed for session tracking
 
 # Technique lists
 tachi_waza = [
@@ -93,7 +94,8 @@ ne_links = {
     "Ude-hishigi-hara-gatame": "https://youtu.be/ZzEycg8R_9M",
 }
 
-# Category mapping based on Shodan Exam table
+# (More routes coming next message! The file is big — splitting carefully.) 🚀
+# Categories for flashcards
 categories = {
     "TE-WAZA": ["Seoi-nage", "Ippon-seoi-nage", "Tai-otoshi", "Kata-guruma", "Sukui-nage", "Uki-otoshi", "Sumi-otoshi"],
     "KOSHI-WAZA": ["Uki-goshi", "O-goshi", "Koshi-guruma", "Tsurikomi-goshi", "Harai-goshi", "Tsuri-goshi", "Hane-goshi", "Utsuri-goshi", "Ushiro-goshi"],
@@ -105,6 +107,7 @@ categories = {
     "KANSETSU-WAZA": ["Ude-garami", "Ude-hishigi-juji-gatame", "Ude-hishigi-ude-gatame", "Ude-hishigi-hiza-gatame", "Ude-hishigi-waki-gatame", "Ude-hishigi-hara-gatame"]
 }
 
+# Flashcards Routes
 @app.route('/flashcards', methods=['GET'])
 def flashcards():
     return render_template('flashcards_select.html', categories=categories.keys())
@@ -112,87 +115,200 @@ def flashcards():
 @app.route('/flashcards/start', methods=['POST'])
 def flashcards_start():
     selected_categories = request.form.getlist('categories')
-
     selected_techniques = []
     for category in selected_categories:
         selected_techniques.extend(categories.get(category, []))
-    
     random.shuffle(selected_techniques)
-
     if selected_techniques:
         current = selected_techniques.pop(0)
         link = tachi_links.get(current) or ne_links.get(current) or "#"
-        return render_template('flashcards_play.html',
-                               current=current,
-                               link=link,
-                               techniques=selected_techniques)
+        return render_template('flashcards_play.html', current=current, link=link, techniques=selected_techniques)
     else:
         return render_template('flashcards_play.html', techniques=[])
-
 
 @app.route('/flashcards/play', methods=['POST'])
 def flashcards_play():
     techniques = request.form.getlist('techniques')
-
     if techniques:
-        current = techniques.pop(0)  # Get next technique
+        current = techniques.pop(0)
         link = tachi_links.get(current) or ne_links.get(current) or "#"
-        return render_template('flashcards_play.html',
-                               current=current,
-                               link=link,
-                               techniques=techniques)
+        return render_template('flashcards_play.html', current=current, link=link, techniques=techniques)
     else:
         return render_template('flashcards_play.html', techniques=[])
 
-
-
+# Welcome page
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
 
-
+# Choose random throw
 @app.route('/choose', methods=['GET', 'POST'])
 def choose():
-    if request.method == 'POST':
-        return render_template('choose.html')
     return render_template('choose.html')
-
 
 @app.route('/results', methods=['POST'])
 def results():
     num_tachi = int(request.form['num_tachi'])
     num_ne = int(request.form['num_ne'])
-
     selected_tachi = random.sample(tachi_waza, num_tachi)
     selected_ne = random.sample(ne_waza, num_ne)
-    tachi_with_links = [(tech, tachi_links.get(tech, "#"))
-                        for tech in selected_tachi]
+    tachi_with_links = [(tech, tachi_links.get(tech, "#")) for tech in selected_tachi]
     ne_with_links = [(tech, ne_links.get(tech, "#")) for tech in selected_ne]
+    return render_template('results.html', tachi=tachi_with_links, ne=ne_with_links)
 
-    return render_template('results.html',
-                           tachi=tachi_with_links,
-                           ne=ne_with_links)
-
-
-
+# --- Video Quiz Mode v2.0 ---
 
 @app.route('/quiz')
 def quiz():
     all_moves = list(tachi_links.keys()) + list(ne_links.keys())
     correct_move = random.choice(all_moves)
-    options = random.sample(all_moves, 4) + [correct_move]
+    options = random.sample(all_moves, 4)
+    if correct_move not in options:
+        options[random.randint(0, 3)] = correct_move
     random.shuffle(options)
 
     video_link = tachi_links.get(correct_move) or ne_links.get(correct_move)
-
-    # Extract clean video ID
     if "v=" in video_link:
-        video_id = video_link.split("v=")[-1]
-        video_id = video_id.split("&")[0]  # remove extra junk
+        video_id = video_link.split("v=")[-1].split("&")[0]
     else:
         video_id = video_link.split("/")[-1]
 
-    return render_template('quiz.html', video_id=video_id, correct_move=correct_move, options=options)
+    session['correct_move'] = correct_move
+    session['video_id'] = video_id
+    session['options'] = options
+
+    return render_template('quiz.html',
+                           video_id=video_id,
+                           options=options)
+
+@app.route('/quiz/answer', methods=['POST'])
+def quiz_answer():
+    selected = request.form.get('selected')
+    correct_move = session.get('correct_move')
+
+    if selected == correct_move:
+        result = "Correct!"
+    else:
+        result = f"Wrong! It was: {correct_move}"
+
+    return render_template('quiz_result.html', result=result)
+
+
+translations = {
+    "Seoi-nage": "Shoulder throw",
+    "Ippon-seoi-nage": "One-arm shoulder throw",
+    "Tai-otoshi": "Body drop",
+    "Kata-guruma": "Shoulder wheel",
+    "Sukui-nage": "Scooping throw",
+    "Uki-otoshi": "Floating drop",
+    "Sumi-otoshi": "Corner drop",
+    "Uki-goshi": "Floating hip throw",
+    "O-goshi": "Major hip throw",
+    "Koshi-guruma": "Hip wheel",
+    "Tsurikomi-goshi": "Lifting pulling hip throw",
+    "Harai-goshi": "Sweeping hip throw",
+    "Tsuri-goshi": "Lifting hip throw",
+    "Hane-goshi": "Springing hip throw",
+    "Utsuri-goshi": "Switching hip throw",
+    "Ushiro-goshi": "Rear throw",
+    "De-ashi-harai": "Advanced foot sweep",
+    "Hiza-guruma": "Knee wheel",
+    "Sasae-tsurikomi-ashi": "Supporting lifting foot throw",
+    "O-soto-gari": "Major outer reap",
+    "O-uchi-gari": "Major inner reap",
+    "Ko-soto-gari": "Minor outer reap",
+    "Ko-uchi-gari": "Minor inner reap",
+    "Okuri-ashi-harai": "Sliding foot sweep",
+    "Uchi-mata": "Inner thigh throw",
+    "Ko-soto-gake": "Minor outer hook",
+    "Ashi-guruma": "Leg wheel",
+    "Harai-tsurikomi-ashi": "Sweeping lifting foot throw",
+    "O-guruma": "Major wheel",
+    "O-soto-guruma": "Major outer wheel",
+    "Tomoe-nage": "Circle throw",
+    "Sumi-gaeshi": "Corner reversal",
+    "Ura-nage": "Rear throw",
+    "Yoko-otoshi": "Side drop",
+    "Tani-otoshi": "Valley drop",
+    "Hane-makikomi": "Springing wraparound throw",
+    "Soto-makikomi": "Outer wraparound throw",
+    "Uki-waza": "Floating technique",
+    "Yoko-wakare": "Side separation",
+    "Yoko-guruma": "Side wheel",
+    "Yoko-gake": "Side hook",
+    "Kesa-gatame": "Scarf hold",
+    "Kata-gatame": "Shoulder hold",
+    "Kuzure-kami-shiho-gatame": "Modified upper four corner hold",
+    "Yoko-shiho-gatame": "Side four corner hold",
+    "Tate-shiho-gatame": "Vertical four corner hold",
+    "Kuzure-kesa-gatame": "Modified scarf hold",
+    "Kami-shiho-gatame": "Upper four corner hold",
+    "Nami-juji-jime": "Normal cross choke",
+    "Gyaku-juji-jime": "Reverse cross choke",
+    "Kata-juji-jime": "Single cross choke",
+    "Hadaka-jime": "Rear naked choke",
+    "Okuri-eri-jime": "Sliding collar choke",
+    "Kata-ha-jime": "Single wing choke",
+    "Ude-garami": "Entangled arm lock",
+    "Ude-hishigi-juji-gatame": "Cross arm lock",
+    "Ude-hishigi-ude-gatame": "Arm lock",
+    "Ude-hishigi-hiza-gatame": "Knee arm lock",
+    "Ude-hishigi-waki-gatame": "Armpit arm lock",
+    "Ude-hishigi-hara-gatame": "Stomach arm lock"
+}
+
+@app.route('/translation', methods=['GET', 'POST'])
+def translation_start():
+    if request.method == 'POST':
+        mode = request.form.get('mode')
+        session['mode'] = mode
+        session['remaining'] = list(translations.keys()) if mode == 'ja_to_en' else list(translations.values())
+        random.shuffle(session['remaining'])
+        session['score'] = 0
+        session['total'] = 0
+        return redirect(url_for('translation_quiz'))
+    return render_template('translation_mode.html')
+
+@app.route('/translation/quiz', methods=['GET'])
+def translation_quiz():
+    if not session.get('remaining'):
+        return render_template('translation_done.html', score=session.get('score', 0), total=session.get('total', 0))
+    
+    mode = session['mode']
+    question = session['remaining'].pop(0)
+    correct_answer = translations[question] if mode == 'ja_to_en' else [k for k, v in translations.items() if v == question][0]
+
+    # Build 4 random wrong answers
+    pool = list(translations.values() if mode == 'ja_to_en' else translations.keys())
+    pool = [item for item in pool if item != correct_answer]
+    options = random.sample(pool, 4)
+    options.append(correct_answer)
+    random.shuffle(options)
+
+    session['current_question'] = question
+    session['current_correct'] = correct_answer
+
+    return render_template('translation.html',
+                           question=question,
+                           options=options,
+                           mode=mode,
+                           score=session.get('score', 0),
+                           total=session.get('total', 0))
+
+@app.route('/translation/answer', methods=['POST'])
+def translation_answer():
+    selected = request.form.get('selected')
+    correct = session['current_correct']
+
+    if selected == correct:
+        session['score'] += 1
+        result = "Correct!"
+    else:
+        result = f"Wrong! Correct answer was: {correct}"
+
+    session['total'] += 1
+
+    return render_template('translation_result.html', result=result)
 
 
 if __name__ == '__main__':
