@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Selected Techniques</title>
+</head>
+    <body>
+      <div class="container">
+        <h1>Here are your selected techniques:</h1>
+
+        <h2>Tachi-waza:</h2>
+        <ul>
+          {% for name, link in tachi %}
+              <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+          {% endfor %}
+        </ul>
+
+        <h2>Ne-waza:</h2>
+        <ul>
+          {% for name, link in ne %}
+              <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+          {% endfor %}
+        </ul>
+
+        <a href="/choose" class="button">Pick New Techniques</a>
+      </div>
+    </body>
+
+
+</html>
