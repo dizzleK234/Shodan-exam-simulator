@@ -94,7 +94,7 @@ ne_links = {
     "Ude-hishigi-hara-gatame": "https://youtu.be/ZzEycg8R_9M",
 }
 
-# (More routes coming next message! The file is big — splitting carefully.) 🚀
+
 # Categories for flashcards
 categories = {
     "TE-WAZA": ["Seoi-nage", "Ippon-seoi-nage", "Tai-otoshi", "Kata-guruma", "Sukui-nage", "Uki-otoshi", "Sumi-otoshi"],
@@ -196,18 +196,19 @@ def quiz_answer():
 # --- GIF Quiz Mode (from /static/shodan_techniques/) ---
 
 gif_techniques = [
-    "Yoko-wakare", "Yoko-shiho-gatame", "Yoko-otoshi", "Yoko-gake", "Ura-nage",
-    "Uki-waza", "Uki-otoshi", "Uki-goshi", "Ude-hishigi-waki-gatame", "Ude-hishigi-ude-gatame",
-    "Ude-hishigi-juji-gatame", "Ude-hishigi-hiza-gatame", "Ude-hishigi-hara-gatame",
-    "Ude-garami", "Uchi-mata", "Tsurikomi-goshi", "Tsuri-goshi", "Tomoe-nage",
-    "Tate-shiho-gatame", "Tani-otoshi", "Tai-otoshi", "Sumi-otoshi", "Sumi-gaeshi",
-    "Sukui-nage", "Soto-makikomi", "Seoi-nage", "Sasae-tsurikomi-ashi", "Okuri-eri-jime",
-    "Okuri-ashi-harai", "O-uchi-gari", "O-soto-gari", "O-guruma", "O-goshi",
-    "Nami-juji-jime", "Kuzure-kami-shiho-gatame", "Koshi-guruma", "Ko-soto-gake",
-    "Kesa-gatame", "Kata-juji-jime", "Kata-guruma", "Kata-gatame", "Kami-shiho-gatame",
-    "Hiza-guruma", "Harai-tsurikomi-ashi", "Harai-goshi", "Hane-makikomi", "Hane-goshi",
-    "Hadaka-jime", "Gyaku-juji-jime", "De-ashi-harai", "Ashi-guruma"
+    "Ashi-guruma", "De-ashi-harai", "Gyaku-juji-jime", "Hadaka-jime", "Hane-goshi", "Hane-makikomi",
+    "Harai-goshi", "Harai-tsurikomi-ashi", "Hiza-guruma", "Ippon-seoi-nage", "Kami-shiho-gatame",
+    "Kata-gatame", "Kata-guruma", "Kata-juji-jime", "Kata-ha-jime", "Kesa-gatame", "Ko-soto-gake",
+    "Ko-soto-gari", "Ko-uchi-gari", "Koshi-guruma", "Kuzure-kami-shiho-gatame", "Kuzure-kesa-gatame",
+    "Nami-juji-jime", "O-goshi", "O-guruma", "O-soto-gari", "O-soto-guruma", "O-uchi-gari",
+    "Okuri-ashi-harai", "Okuri-eri-jime", "Sasae-tsurikomi-ashi", "Seoi-nage", "Soto-makikomi",
+    "Sukui-nage", "Sumi-gaeshi", "Sumi-otoshi", "Tai-otoshi", "Tani-otoshi", "Tate-shiho-gatame",
+    "Tomoe-nage", "Tsuri-goshi", "Tsurikomi-goshi", "Uchi-mata", "Ude-garami", "Ude-hishigi-juji-gatame",
+    "Ude-hishigi-ude-gatame", "Ude-hishigi-hiza-gatame", "Ude-hishigi-waki-gatame", "Ude-hishigi-hara-gatame",
+    "Uki-goshi", "Uki-otoshi", "Uki-waza", "Ura-nage", "Ushiro-goshi", "Utsuri-goshi",
+    "Yoko-gake", "Yoko-guruma", "Yoko-otoshi", "Yoko-shiho-gatame", "Yoko-wakare"
 ]
+
 
 @app.route('/gifquiz')
 def gifquiz_start():
@@ -367,6 +368,37 @@ def translation_answer():
     session['total'] += 1
 
     return render_template('translation_result.html', result=result)
+
+# --- Review Techniques Mode ---
+
+@app.route('/review')
+def review():
+    format = request.args.get('format', 'video')  # default to video if not specified
+    return render_template('review.html', categories=categories, format=format)
+
+@app.route('/review/<technique>')
+def review_play(technique):
+    format = request.args.get('format', 'video')  # default to video here too
+
+    # Find the YouTube link
+    link = tachi_links.get(technique) or ne_links.get(technique)
+    if not link:
+        return "Technique not found.", 404
+
+    # Extract YouTube video ID properly
+    if "v=" in link:
+        video_id = link.split("v=")[-1].split("&")[0]
+    else:
+        video_id = link.split("/")[-1]
+
+    # Path to the gif (we assume the gif matches the technique name exactly)
+    gif_path = f"/static/shodan_techniques/{technique}.gif"
+
+    return render_template('review_play.html',
+                           technique=technique,
+                           video_id=video_id,
+                           gif_path=gif_path,
+                           format=format)
 
 
 if __name__ == '__main__':
