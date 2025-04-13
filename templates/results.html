@@ -1,29 +1,50 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Selected Techniques</title>
+  <meta charset="UTF-8">
+  <title>Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { background: white; max-width: 700px; margin: 20px auto; padding: 20px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); }
+    h1 { text-align: center; }
+    .techniques { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+    .technique { background: #f0f0f0; padding: 15px; border-radius: 8px; }
+    .technique a { text-decoration: none; color: #007bff; font-size: 18px; }
+    .nav-buttons { text-align: center; margin-bottom: 20px; }
+    .nav-buttons button { padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; border: none; }
+    .back-btn { background-color: #6c757d; color: white; }
+    .home-btn { background-color: #007bff; color: white; }
+  </style>
 </head>
-    <body>
-      <div class="container">
-        <h1>Here are your selected techniques:</h1>
+<body>
+  <div class="container">
 
-        <h2>Tachi-waza:</h2>
-        <ul>
-          {% for name, link in tachi %}
-              <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
-          {% endfor %}
-        </ul>
+    <div class="nav-buttons">
+      <button class="back-btn" onclick="history.back()">Back</button>
+      <a href="/"><button class="home-btn">Home</button></a>
+    </div>
 
-        <h2>Ne-waza:</h2>
-        <ul>
-          {% for name, link in ne %}
-              <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
-          {% endfor %}
-        </ul>
+    <h1>Your Techniques</h1>
 
-        <a href="/choose" class="button">Pick New Techniques</a>
-      </div>
-    </body>
+    <h2>Tachi-Waza</h2>
+    <div class="techniques">
+      {% for tech, link in tachi %}
+        <div class="technique">
+          <a href="{{ link }}" target="_blank">{{ tech }}</a>
+        </div>
+      {% endfor %}
+    </div>
 
+    <h2 style="margin-top: 30px;">Ne-Waza</h2>
+    <div class="techniques">
+      {% for tech, link in ne %}
+        <div class="technique">
+          <a href="{{ link }}" target="_blank">{{ tech }}</a>
+        </div>
+      {% endfor %}
+    </div>
 
+  </div>
+</body>
 </html>

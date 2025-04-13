@@ -3,20 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <title>GIF Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; text-align: center; padding: 20px; }
-    .container { background: white; max-width: 700px; margin: auto; padding: 30px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); }
+    body { font-family: Arial, sans-serif; background: #f7f7f7; text-align: center; padding: 20px; margin: 0; }
+    .container { background: white; max-width: 700px; margin: 20px auto; padding: 20px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); position: relative; }
+    .gif-container { position: relative; }
     img { width: 100%; height: auto; border-radius: 12px; }
+    .blackout {
+      position: absolute;
+      bottom: 20px;   /* slight gap from the bottom */
+      left: 10px;     /* slight gap from the left */
+      width: 200px;   /* width of the blackout */
+      height: 40px;   /* height of the blackout */
+      background: black;
+      opacity: 1;
+      z-index: 2;
+      border-radius: 8px;
+    }
     button { margin: 10px; padding: 14px 28px; font-size: 18px; border-radius: 8px; background: #007bff; color: white; border: none; width: 100%; }
     .score { position: absolute; top: 20px; right: 20px; font-size: 18px; }
   </style>
 </head>
 <body>
   <div class="score">Score: {{ score }}/{{ total }}</div>
+
   <div class="container">
     <h1>Which Technique is This?</h1>
 
-    <img src="/static/shodan_techniques/{{ gif_name }}.gif" alt="Technique">
+    <div class="gif-container">
+      <img src="/static/shodan_techniques/{{ gif_name }}.gif" alt="Technique GIF">
+      <div class="blackout"></div> <!-- Blackout box -->
+    </div>
 
     <form method="post" action="/gifquiz/answer">
       {% for option in options %}

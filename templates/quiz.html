@@ -39,11 +39,17 @@
 </head>
 <body>
   <div class="container">
+    <div class="nav-buttons" style="margin-bottom: 20px;">
+      <button onclick="history.back()" style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #6c757d; color: white; border: none;">Back</button>
+      <a href="/" style="text-decoration: none;">
+        <button style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #007bff; color: white; border: none;">Home</button>
+      </a>
+    </div>
     <h1>Which Technique is This?</h1>
 
     <div style="position:relative;">
       <iframe
-        src="https://www.youtube.com/embed/{{ video_id }}?start=12&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0"
+        src="https://www.youtube.com/embed/{{ video_id }}?start=6&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0"
         allow="autoplay"
         allowfullscreen>
       </iframe>

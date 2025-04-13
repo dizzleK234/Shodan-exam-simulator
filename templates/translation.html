@@ -13,6 +13,12 @@
 <body>
   <div class="score">Score: {{ score }}/{{ total }}</div>
   <div class="container">
+    <div class="nav-buttons" style="margin-bottom: 20px;">
+      <button onclick="history.back()" style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #6c757d; color: white; border: none;">Back</button>
+      <a href="/" style="text-decoration: none;">
+        <button style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #007bff; color: white; border: none;">Home</button>
+      </a>
+    </div>
     <h2>Translate:</h2>
     <h1>{{ question }}</h1>
 

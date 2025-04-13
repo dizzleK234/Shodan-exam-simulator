@@ -37,6 +37,12 @@
 </head>
 <body>
   <div class="container">
+    <div class="nav-buttons" style="margin-bottom: 20px;">
+      <button onclick="history.back()" style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #6c757d; color: white; border: none;">Back</button>
+      <a href="/" style="text-decoration: none;">
+        <button style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #007bff; color: white; border: none;">Home</button>
+      </a>
+    </div>
     <h1>Choose Technique Categories</h1>
     <form action="/flashcards/start" method="post">
       {% for category in categories %}
