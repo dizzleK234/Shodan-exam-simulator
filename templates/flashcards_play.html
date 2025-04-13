@@ -1,73 +1,117 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Flashcard</title>
-    <meta charset="UTF-8">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            padding: 14px 28px;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            margin-top: 20px;
-            width: 80%;
-        }
-        a {
-            display: block;
-            margin-top: 20px;
-            font-size: 22px;
-            color: #007bff;
-            text-decoration: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Flashcards</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 0; /* No background or big padding now */
+    }
+    .flashcard {
+      border: 2px solid #007bff;
+      border-radius: 12px;
+      padding: 30px 20px;
+      font-size: 24px;
+      margin-bottom: 20px;
+      background-color: #eef4ff;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    }
+    .nav-buttons {
+      margin-bottom: 20px;
+    }
+    .nav-buttons button {
+      background-color: #6c757d;
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      color: white;
+    }
+    .switch-buttons {
+      margin-bottom: 10px;
+    }
+    .switch-buttons a button {
+      background-color: #28a745;
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: none;
+      margin: 5px;
+      color: white;
+      text-decoration: none;
+    }
+    .main-buttons {
+      margin-top: 20px;
+    }
+    .main-buttons a.button, .main-buttons button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      width: 90%;
+      text-decoration: none;
+      display: inline-block;
+    }
+    h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
+
 <body>
   <div class="container">
-    <div class="nav-buttons" style="margin-bottom: 20px;">
-      <button onclick="history.back()" style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #6c757d; color: white; border: none;">Back</button>
-      <a href="/" style="text-decoration: none;">
-        <button style="padding: 10px 20px; font-size: 16px; border-radius: 8px; margin: 5px; background-color: #007bff; color: white; border: none;">Home</button>
-      </a>
+
+    <div class="nav-buttons">
+      <button onclick="history.back()">Back</button>
+      <a href="/"><button>Home</button></a>
     </div>
-    <h1>Flashcard</h1>
 
     {% if current %}
-      <h2>{{ current }}</h2>
-      <a href="{{ link }}" target="_blank">Watch Technique</a>
+      <div class="flashcard">{{ current }}</div>
+
+      
+
+      <div class="main-buttons">
+        <a href="{{ url_for('flashcards_watch', technique=current, format=request.args.get('format', 'video')) }}" class="button">Watch Technique</a>
+      </div>
 
       {% if techniques %}
-        <form action="/flashcards/play" method="post">
+        <form action="/flashcards/play" method="post" style="margin-top: 20px;">
           {% for t in techniques %}
             <input type="hidden" name="techniques" value="{{ t }}">
           {% endfor %}
-          <button type="submit">Next</button>
+          {% if request.args.get('format') %}
+            <input type="hidden" name="format" value="{{ request.args.get('format') }}">
+          {% endif %}
+          <button type="submit" style="width:90%;">Next</button>
         </form>
       {% else %}
-        <h3>All flashcards completed after this one!</h3>
+        <h2>All flashcards completed after this one!</h2>
         <form action="/flashcards/play" method="post">
-          <button type="submit">Finish</button>
+          <button style="width:90%;">Finish</button>
         </form>
       {% endif %}
-      
+
     {% else %}
       <h2>All flashcards completed!</h2>
-      <a href="/flashcards" class="button">Start Over</a>
+      <div class="main-buttons">
+        <a href="/flashcards" class="button">Start Over</a>
+      </div>
     {% endif %}
 
   </div>

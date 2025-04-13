@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ technique }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    }
+    .nav-buttons {
+      margin-bottom: 20px;
+    }
+    .nav-buttons button {
+      background-color: #6c757d;
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      color: white;
+    }
+    .switch-buttons a button {
+      background-color: #28a745;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: none;
+      margin: 5px;
+      color: white;
+      text-decoration: none;
+    }
+    iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      border-radius: 12px;
+    }
+    img {
+      width: 100%;
+      height: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="nav-buttons">
+      <button onclick="history.back()">Back</button>
+      <a href="/"><button>Home</button></a>
+    </div>
+
+    <h1>{{ technique }}</h1>
+
+  
+
+    {% if format == 'video' %}
+      <iframe
+        src="https://www.youtube.com/embed/{{ video_id }}?start=4&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0"
+        allow="autoplay"
+        allowfullscreen>
+      </iframe>
+    {% else %}
+      <img src="{{ gif_path }}" alt="{{ technique }}">
+    {% endif %}
+
+  </div>
+</body>
+</html>
