@@ -193,6 +193,64 @@ def quiz_answer():
 
     return render_template('quiz_result.html', result=result)
 
+# --- GIF Quiz Mode (from /static/shodan_techniques/) ---
+
+gif_techniques = [
+    "Yoko-wakare", "Yoko-shiho-gatame", "Yoko-otoshi", "Yoko-gake", "Ura-nage",
+    "Uki-waza", "Uki-otoshi", "Uki-goshi", "Ude-hishigi-waki-gatame", "Ude-hishigi-ude-gatame",
+    "Ude-hishigi-juji-gatame", "Ude-hishigi-hiza-gatame", "Ude-hishigi-hara-gatame",
+    "Ude-garami", "Uchi-mata", "Tsurikomi-goshi", "Tsuri-goshi", "Tomoe-nage",
+    "Tate-shiho-gatame", "Tani-otoshi", "Tai-otoshi", "Sumi-otoshi", "Sumi-gaeshi",
+    "Sukui-nage", "Soto-makikomi", "Seoi-nage", "Sasae-tsurikomi-ashi", "Okuri-eri-jime",
+    "Okuri-ashi-harai", "O-uchi-gari", "O-soto-gari", "O-guruma", "O-goshi",
+    "Nami-juji-jime", "Kuzure-kami-shiho-gatame", "Koshi-guruma", "Ko-soto-gake",
+    "Kesa-gatame", "Kata-juji-jime", "Kata-guruma", "Kata-gatame", "Kami-shiho-gatame",
+    "Hiza-guruma", "Harai-tsurikomi-ashi", "Harai-goshi", "Hane-makikomi", "Hane-goshi",
+    "Hadaka-jime", "Gyaku-juji-jime", "De-ashi-harai", "Ashi-guruma"
+]
+
+@app.route('/gifquiz')
+def gifquiz_start():
+    session['gif_remaining'] = gif_techniques.copy()
+    random.shuffle(session['gif_remaining'])
+    session['gif_score'] = 0
+    session['gif_total'] = 0
+    return redirect(url_for('gifquiz'))
+
+@app.route('/gifquiz/play')
+def gifquiz():
+    if not session.get('gif_remaining'):
+        return render_template('gifquiz_done.html', score=session.get('gif_score', 0), total=session.get('gif_total', 0))
+
+    current = session['gif_remaining'].pop(0)
+    correct = current
+
+    options = random.sample(gif_techniques, 4)
+    if correct not in options:
+        options[random.randint(0, 3)] = correct
+    random.shuffle(options)
+
+    session['gif_current'] = current
+    session['gif_correct'] = correct
+
+    return render_template('gifquiz.html', gif_name=current, options=options, score=session['gif_score'], total=session['gif_total'])
+
+@app.route('/gifquiz/answer', methods=['POST'])
+def gifquiz_answer():
+    selected = request.form.get('selected')
+    correct = session.get('gif_correct')
+
+    if selected == correct:
+        session['gif_score'] += 1
+        result = "Correct!"
+    else:
+        result = f"Wrong! It was: {correct}"
+
+    session['gif_total'] += 1
+
+    return render_template('gifquiz_result.html', result=result)
+
+
 
 translations = {
     "Seoi-nage": "Shoulder throw",
