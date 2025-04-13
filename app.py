@@ -136,6 +136,28 @@ def flashcards_play():
     else:
         return render_template('flashcards_play.html', techniques=[])
 
+@app.route('/flashcards/watch/<technique>')
+def flashcards_watch(technique):
+    format = request.args.get('format', 'video')  # default = video
+
+    link = tachi_links.get(technique) or ne_links.get(technique)
+    if not link:
+        return "Technique not found.", 404
+
+    if "v=" in link:
+        video_id = link.split("v=")[-1].split("&")[0]
+    else:
+        video_id = link.split("/")[-1]
+
+    gif_path = f"/static/shodan_techniques/{technique}.gif"
+
+    return render_template('flashcards_watch.html',
+                           technique=technique,
+                           video_id=video_id,
+                           gif_path=gif_path,
+                           format=format)
+
+
 # Welcome page
 @app.route('/')
 def welcome():
