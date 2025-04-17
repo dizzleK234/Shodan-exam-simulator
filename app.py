@@ -219,7 +219,7 @@ def quiz_answer():
 
 gif_techniques = [
     "Ashi-guruma", "De-ashi-harai", "Gyaku-juji-jime", "Hadaka-jime", "Hane-goshi", "Hane-makikomi",
-    "Harai-goshi", "Harai-tsurikomi-ashi", "Hiza-guruma", "Ippon-Seoi-nage", "Kami-shiho-gatame",
+    "Harai-goshi", "Harai-tsurikomi-ashi", "Hiza-guruma", "Ippon-seoi-nage", "Kami-shiho-gatame",
     "Kata-gatame", "Kata-guruma", "Kata-juji-jime", "Kata-ha-jime", "Kesa-gatame", "Ko-soto-gake",
     "Ko-soto-gari", "Ko-uchi-gari", "Koshi-guruma", "Kuzure-kami-shiho-gatame", "Kuzure-kesa-gatame",
     "Nami-juji-jime", "O-goshi", "O-guruma", "O-soto-gari", "O-soto-guruma", "O-uchi-gari",
