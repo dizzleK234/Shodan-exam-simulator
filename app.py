@@ -215,7 +215,7 @@ def quiz_answer():
 
     return render_template('quiz_result.html', result=result)
 
-# --- GIF Quiz Mode (from /static/shodan_techniques/) ---
+# --- GIF Quiz Mode (from /cstatic/shodan_techniques/) ---
 
 gif_techniques = [
     "Ashi-guruma", "De-ashi-harai", "Gyaku-juji-jime", "Hadaka-jime", "Hane-goshi", "Hane-makikomi",
